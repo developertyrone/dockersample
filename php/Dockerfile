@@ -42,23 +42,24 @@ RUN sed -E -i -e '/<Directory "\/var\/www\/html">/,/<\/Directory>/s/AllowOverrid
 
 # Permission update and Enable reading environment variable
 # Putting EGPCS in php.ini if $_ENV is necessary
+# To bind port 80 require CAP_NET_BIND_SERVICE
 RUN sed -i 's/listen.acl_users = apache,nginx/listen.acl_users =/' /etc/php-fpm.d/www.conf \
   && mkdir /run/php-fpm \
   && chgrp -R 0 /var/log/httpd /var/run/httpd /run/php-fpm \
   && chmod -R g=u /var/log/httpd /var/run/httpd /run/php-fpm \
-  && sed -i 's/;clear_env = no/clear_env = no/' /etc/php-fpm.d/www.conf
+  && sed -i 's/;clear_env = no/clear_env = no/' /etc/php-fpm.d/www.conf \
+  && sed -i 's/Listen 80/Listen 8080/' /etc/httpd/conf/httpd.conf
 
+#----Testing purpose, please comment out for production release----#
+RUN yum --disableplugin=subscription-manager -y install iputils bind-utils nmap-ncat \
+  && yum --disableplugin=subscription-manager clean all
+COPY index.php info.php sqlconnect.php sqlconnect2.php  /var/www/html/public/
+#----Testing End----#
 
-# For testing purpose, please comment out for production release
-RUN yum --disableplugin=subscription-manager -y install iputils bind-utils nmap-ncat
-ADD index.php /var/www/html/public/index.php
-ADD info.php /var/www/html/public/info.php
-ADD sqlconnect.php /var/www/html/public/sqlconnect.php
-ADD sqlconnect2.php /var/www/html/public/sqlconnect2.php
-RUN yum --disableplugin=subscription-manager clean all
 
 # Port expose
-EXPOSE 80
+EXPOSE 8080
 
 # Start Apache
+USER 1001
 CMD php-fpm & httpd -D FOREGROUND
