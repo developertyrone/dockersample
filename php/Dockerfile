@@ -6,9 +6,7 @@ FROM registry.access.redhat.com/ubi8/ubi:8.3
 RUN yum --enablerepo=ubi-8-codeready-builder -y update \
   && yum --disableplugin=subscription-manager -y module enable php:7.4 \
   && yum --disableplugin=subscription-manager -y install httpd php php-bcmath php-cli php-common php-gd php-intl php-ldap php-mbstring \
-    php-mysqlnd php-pear php-soap php-xml php-xmlrpc php-zip php-pdo php-xml php-pear php-devel gcc-c++ gcc make \
-  && yum --disableplugin=subscription-manager clean all
-# TODO, caching of php ?
+    php-mysqlnd php-pear php-soap php-xml php-xmlrpc php-zip php-pdo php-xml php-pear php-devel gcc-c++ gcc make
 
 # MSSQL Driver Compatibility for UBI8
 RUN yum config-manager --add-repo http://mirror.centos.org/centos/8/BaseOS/x86_64/os/ \
@@ -16,11 +14,13 @@ RUN yum config-manager --add-repo http://mirror.centos.org/centos/8/BaseOS/x86_6
   && yum --disableplugin=subscription-manager -y install e2fsprogs
 
 # Install mssql driver
-RUN curl https://packages.microsoft.com/config/rhel/8/prod.repo > /etc/yum.repos.d/mssql-release.repo
 ENV ACCEPT_EULA=Y
 ENV PATH=${PATH}:/opt/mssql/bin:/opt/mssql-tools/bin
-RUN yum --disableplugin=subscription-manager -y install msodbcsql17 mssql-tools unixODBC-devel
+RUN curl https://packages.microsoft.com/config/rhel/8/prod.repo > /etc/yum.repos.d/mssql-release.repo \
+  && yum --disableplugin=subscription-manager -y install msodbcsql17 mssql-tools unixODBC-devel
 
+# Clean all the package cache
+RUN yum --disableplugin=subscription-manager clean all
 
 # Install PHP MSSQL PDO
 RUN pecl install sqlsrv \
@@ -55,11 +55,10 @@ ADD index.php /var/www/html/public/index.php
 ADD info.php /var/www/html/public/info.php
 ADD sqlconnect.php /var/www/html/public/sqlconnect.php
 ADD sqlconnect2.php /var/www/html/public/sqlconnect2.php
+RUN yum --disableplugin=subscription-manager clean all
 
 # Port expose
 EXPOSE 80
 
-
 # Start Apache
-USER 1001
 CMD php-fpm & httpd -D FOREGROUND
