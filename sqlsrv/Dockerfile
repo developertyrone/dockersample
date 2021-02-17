@@ -16,20 +16,13 @@ ARG TCP_PORT=1433
 ARG PID=Express
 ENV ACCEPT_EULA=Y MSSQL_PID=$PID MSSQL_SA_PASSWORD=$SA_PASSWORD MSSQL_TCP_PORT=$TCP_PORT
 
-
-
 # Grant permissions for the import-data script to be executable
 RUN chmod +x /usr/work/import-data.sh
-
-RUN mkdir -p /var/opt/mssql && \
-    chmod -R g=u /var/opt/mssql /etc/passwd
 
 ### Containers should not run as root as a good practice
 USER 10001
 
 # Default SQL Server TCP/Port
 EXPOSE $TCP_PORT
-
-ENV PATH $PATH:/opt/mssql-tools/binTH $PATH:/opt/mssql-tools/bin
 
 CMD /bin/bash ./entrypoint.sh
