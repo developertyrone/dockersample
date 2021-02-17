@@ -20,14 +20,15 @@ podman run --name appserver -p 8080:8080 -dt -e DB_HOST=192.168.1.140 -e DB_NAME
 8. http://<your_podman_host_ip>:8080/index.php
 
 # To run in openshift
-$ oc new-project myproj
-$ oc create -f my-service-account-pull-secret.yaml
-$ oc secrets link builder my-service-account-pull-secret
-$ oc new-app --name hello https://github.com/flozanorht/testphp-ubi.git
-$ oc logs -f bc/hello
-$ oc get pod
-$ oc expose svc hello
-$ curl hello-myproj.mycluster.example.com
+1. oc new-project myproj
+2. oc new-app https://github.com/developertyrone/dockersample --context-dir=php/ --name=php
+3. oc logs -f bc/php
+4. oc get pod
+5. oc expose svc php
+
+
+oc new-app https://github.com/developertyrone/dockersample --context-dir=sqlsrv --name=db
+
 
 # Remark
 1. please remove the testing block in dockerfile for production release
