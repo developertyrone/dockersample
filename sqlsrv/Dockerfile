@@ -1,5 +1,5 @@
-#FROM microsoft/mssql-server-linux:latest
-FROM mcr.microsoft.com/mssql/rhel/server:2019-CU1-rhel-8
+FROM microsoft/mssql-server-linux:latest
+#FROM mcr.microsoft.com/mssql/rhel/server:2019-CU1-rhel-8
 
 # Create work directory
 RUN mkdir -p /usr/work
